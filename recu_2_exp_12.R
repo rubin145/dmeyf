@@ -10,6 +10,8 @@ require("xgboost")
 
 exp <- '12' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
 
+
+
 fractions <- seq(0.17,0.24, by=0.001)
 
 ganancia_topn <- function(vector_of_test_values){
@@ -176,8 +178,4 @@ for (fraction in fractions) {
   fixed_ns_agg_results <- rbind(fixed_ns_agg_results, data.frame(fraction = fraction, sum_of_wins_fn = sum_of_wins_fn, sum_of_wins_ft = sum_of_wins_ft, diff_fn = sum_of_diff_fn, diff_ft = sum_of_diff_ft))
 }
 
-
-# for (split_seed in 1:10){
-#   write.csv(split_seed_dfs[[split_seed]], file = paste0("exp_",exp,"_gains_",split_seed,".csv"), row.names=FALSE)
-# }
-write.csv(fixed_ns_agg_results, file = paste0("exp_",exp,"_gains",".csv"), row.names=FALSE)
+write.csv(fixed_ns_agg_results, file = paste0("exp_",exp,"_gains_check",".csv"), row.names=FALSE)

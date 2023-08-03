@@ -45,7 +45,7 @@ dataset_generacion[, clase := NULL]
 
 split_seed_results <- list()
 
-for (split_seed in n_split_seeds){
+for (split_seed in 1:n_split_seeds){
   gains <- c()
   thresholds <- c()
   
@@ -136,6 +136,17 @@ for (split_seed in 1:n_split_seeds){
   # Store the data frame in the list
   split_seed_dfs[[split_seed]] <- results
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 fixed_ns_agg_results <- data.frame()

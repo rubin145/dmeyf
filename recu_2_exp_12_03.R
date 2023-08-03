@@ -3,11 +3,12 @@ rm(list=ls())
 gc()
 options(scipen=999)
 
+
 # Load required packages
 require("data.table")
 require("xgboost")
 
-exp <- '12_03' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
+exp <- '12_02' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
 split_fraction <- '03' #
 n_split_seeds <- 100
 
@@ -93,10 +94,10 @@ for (split_seed in 1:n_split_seeds){
 }
 split_seed_dfs <- list()
 
-prior_results_fixed_threshold <- read.csv("baseline_gains_fixed_threshold.csv")
+prior_results_fixed_threshold <- read.csv(paste0("baseline_gains_fixed_threshold_",split_fraction,".csv"))
 colnames(prior_results_fixed_threshold) <- c("baseline_gain_ft", "baseline_n_ft", "split_seed")
 
-prior_results_fixed_n <- read.csv("baseline_gains_fixed_n.csv")
+prior_results_fixed_n <- read.csv(paste0("baseline_gains_fixed_n_",split_fraction,".csv"))
 colnames(prior_results_fixed_n) <- c("baseline_gain_fn",'baseline_threshold_fn', "baseline_n_fn", "split_seed")
 
 
@@ -136,6 +137,18 @@ for (split_seed in 1:n_split_seeds){
   split_seed_dfs[[split_seed]] <- results
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 fixed_ns_agg_results <- data.frame()
 
 # Loop through each threshold
@@ -164,6 +177,5 @@ for (fraction in fractions) {
   # Add the results for this threshold to the results data frame
   fixed_ns_agg_results <- rbind(fixed_ns_agg_results, data.frame(fraction = fraction, sum_of_wins_fn = sum_of_wins_fn, sum_of_wins_ft = sum_of_wins_ft, diff_fn = sum_of_diff_fn, diff_ft = sum_of_diff_ft))
 }
-
 
 write.csv(fixed_ns_agg_results, file = paste0("exp_",exp,"_gains",".csv"), row.names=FALSE)
