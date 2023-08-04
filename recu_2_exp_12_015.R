@@ -8,7 +8,7 @@ options(scipen=999)
 require("data.table")
 require("xgboost")
 
-exp <- '12_02' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
+exp <- '12_015' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
 split_fraction <- '015' #
 n_split_seeds <- 100
 

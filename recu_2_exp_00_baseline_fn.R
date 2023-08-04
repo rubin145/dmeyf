@@ -3,6 +3,9 @@ rm(list=ls())
 gc()
 options(scipen=999)
 
+t1 <- Sys.time()
+print(format(t1, "%Y-%m-%d %H:%M:%S"))
+
 require("data.table")
 require("xgboost")
 
@@ -69,10 +72,10 @@ for (split_seed in 1:n_split_seeds){
   #aplico a los datos de aplicacion, que NO TIENE CLASE
   dtest  <- xgb.DMatrix( data= data.matrix( test_data[ , !c('numero_de_cliente','clase01'), with=FALSE]) )
   
-  
-  
   #aplico el modelo a datos nuevos
   aplicacion_prediccion  <- predict(  modelo, dtest )
+  
+  
   
   #uno las columnas de numero_de_cliente y la probabilidad recien calculada
   prediccion_final  <- cbind(test_data[,"numero_de_cliente"], 
@@ -95,3 +98,10 @@ colnames(results) <- c('gain','threshold', 'n', 'split_seed')
 results <- as.data.frame(results)
 
 write.csv(results, file =  paste0("baseline_gains_fixed_n",outfile_suff,".csv"), row.names=FALSE)
+
+
+t2 <- Sys.time()
+print(format(t2, "%Y-%m-%d %H:%M:%S"))
+
+time_diff <- as.numeric(difftime(t2, t1, units="mins"))
+print(paste0("Execution time: ", round(time_diff), " minutes"))

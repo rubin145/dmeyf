@@ -1,0 +1,82 @@
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 22:49:00"
+[1] "015"
+[1] 100
+[1] "threshold"
+[1] "starting_exp00 with | split_fraction 015 | n_split_seeds 100 | fixed threshold"
+[1] "2023-08-03 22:55:23"
+[1] "Execution time: 6 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 22:55:54"
+[1] "03"
+[1] 100
+[1] "threshold"
+[1] "starting_exp00 with | split_fraction 03 | n_split_seeds 100 | fixed threshold"
+[1] "2023-08-03 23:03:15"
+[1] "Execution time: 7 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:03:46"
+[1] "02"
+[1] 100
+[1] "threshold"
+[1] "starting_exp00 with | split_fraction 02 | n_split_seeds 100 | fixed threshold"
+[1] "2023-08-03 23:10:18"
+[1] "Execution time: 7 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:10:50"
+[1] "05"
+[1] 100
+[1] "threshold"
+[1] "starting_exp00 with | split_fraction 05 | n_split_seeds 100 | fixed threshold"
+[1] "2023-08-03 23:21:05"
+[1] "Execution time: 10 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:21:37"
+[1] "015"
+[1] 100
+[1] "n"
+[1] "starting_exp00 with | split_fraction 015 | n_split_seeds 100 | fixed n"
+[1] "2023-08-03 23:27:25"
+[1] "Execution time: 6 minutes"
+Error: unexpected ')' in ")"
+Execution halted
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:27:56"
+[1] "03"
+[1] 100
+[1] "n"
+[1] "starting_exp00 with | split_fraction 03 | n_split_seeds 100 | fixed n"
+[1] "2023-08-03 23:33:06"
+[1] "Execution time: 5 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:33:37"
+[1] "02"
+[1] 100
+[1] "n"
+[1] "starting_exp00 with | split_fraction 02 | n_split_seeds 100 | fixed n"
+[1] "2023-08-03 23:39:04"
+[1] "Execution time: 5 minutes"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 273711 14.7     660905 35.3   451923 24.2
+Vcells 459124  3.6    8388608 64.0  1800319 13.8
+[1] "2023-08-03 23:39:35"
+[1] "05"
+[1] 100
+[1] "n"
+[1] "starting_exp00 with | split_fraction 05 | n_split_seeds 100 | fixed n"
+[1] "2023-08-03 23:43:49"
+[1] "Execution time: 4 minutes"

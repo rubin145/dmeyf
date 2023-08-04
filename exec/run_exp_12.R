@@ -1,4 +1,5 @@
-#limpio la memoria
+#!/usr/bin/env Rscript
+
 rm(list=ls())
 gc()
 options(scipen=999)
@@ -6,13 +7,34 @@ options(scipen=999)
 t1 <- Sys.time()
 print(format(t1, "%Y-%m-%d %H:%M:%S"))
 
-# Load required packages
-require("data.table")
-require("xgboost")
+library("argparser")
+library("data.table")
+library("xgboost")
 
-exp <- '12_03' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
-split_fraction <- '03' #
-n_split_seeds <- 100
+p <- arg_parser("Exp12")
+
+p <- add_argument(p, "--split_fraction", default = '02', help = "The split fraction size: 015/02/03/05")
+p <- add_argument(p, "--n_split_seeds", default = 100, type='integer', help = "Number of split seeds.")
+p <- add_argument(p, "--seed", default = 102191, type='integer', help = "Seed for model.")
+argv <- parse_args(p)
+
+split_fraction <- argv$split_fraction
+n_split_seeds <- argv$n_split_seeds
+seed <- argv$seed
+
+exp <- paste0('12_',split_fraction)
+
+filename_id <- exp
+
+# If conditions don't match default, append to filename
+if(n_split_seeds != 100) {
+  filename_id <- paste0(filename_id,"_n_splits_seeds_",n_split_seeds)
+}
+
+if(seed != 102191) {
+  filename_id <- paste0(filename_id,"_seed_",seed)
+}
+
 
 fractions <- seq(0.17,0.24, by=0.001)
 
@@ -48,6 +70,8 @@ dataset_generacion[, clase := NULL]
 split_seed_results <- list()
 
 for (split_seed in 1:n_split_seeds){
+  print(paste0("split_seed ",split_seed))
+  t01 <- Sys.time()
   gains <- c()
   thresholds <- c()
   
@@ -93,25 +117,42 @@ for (split_seed in 1:n_split_seeds){
     gains <- append(gains, ganancia_topn(top_n_predictions[ , "clase01" ] ) )
   }
   split_seed_results[[split_seed]] <- list(gains = gains, thresholds = thresholds)
+  
+  t02 <- Sys.time()
+  time_diff_seed <- as.numeric(difftime(t02, t01, units="mins"))
+  
+  remaining_time <- time_diff_seed * (n_split_seeds-split_seed)
+  if ((split_seed %% 10) == 0){
+    print(paste0("Remaining time (estimated): ", round(remaining_time), " minutes"))
+  }
 }
+
+tx <- Sys.time()
+print(format(tx, "%Y-%m-%d %H:%M:%S"))
+print("starting to compare")
+
+
 split_seed_dfs <- list()
 
 prior_results_fixed_threshold <- read.csv(paste0("baseline_gains_fixed_threshold_",split_fraction,".csv"))
-colnames(prior_results_fixed_threshold) <- c("baseline_gain_ft", "baseline_n_ft", "split_seed")
+colnames(prior_results_fixed_threshold) <- c("baseline_gain_ft",'baseline_threshold_ft', "baseline_n_ft", "split_seed")
+prior_results_fixed_threshold <- prior_results_fixed_threshold[1:n_split_seeds, ]
 
 prior_results_fixed_n <- read.csv(paste0("baseline_gains_fixed_n_",split_fraction,".csv"))
 colnames(prior_results_fixed_n) <- c("baseline_gain_fn",'baseline_threshold_fn', "baseline_n_fn", "split_seed")
-
+prior_results_fixed_n <- prior_results_fixed_n[1:n_split_seeds, ]
 
 for (split_seed in 1:n_split_seeds){
   
   # Get the baseline gains for this split_seed
   baseline_gain_ft <- prior_results_fixed_threshold[prior_results_fixed_threshold$split_seed == split_seed, "baseline_gain_ft"]
+  baseline_threshold_ft <- prior_results_fixed_threshold[prior_results_fixed_threshold$split_seed == split_seed, "baseline_threshold_ft"]
   baseline_n_ft <- prior_results_fixed_threshold[prior_results_fixed_threshold$split_seed == split_seed, "baseline_n_ft"]
   
   baseline_gain_fn <- prior_results_fixed_n[prior_results_fixed_n$split_seed == split_seed, "baseline_gain_fn"]
-  baseline_n_fn <- prior_results_fixed_n[prior_results_fixed_n$split_seed == split_seed, "baseline_n_fn"]
   baseline_threshold_fn <- prior_results_fixed_n[prior_results_fixed_n$split_seed == split_seed, "baseline_threshold_fn"]
+  baseline_n_fn <- prior_results_fixed_n[prior_results_fixed_n$split_seed == split_seed, "baseline_n_fn"]
+  
   # Get the computed gains and n for this split_seed
   gains <- split_seed_results[[split_seed]]$gains
   thresholds <- split_seed_results[[split_seed]]$thresholds
@@ -119,10 +160,11 @@ for (split_seed in 1:n_split_seeds){
   # Create a data frame
   results <- data.frame(
     baseline_gain_ft = baseline_gain_ft, 
+    baseline_threshold_ft = baseline_threshold_ft,
     baseline_n_ft = baseline_n_ft,
     baseline_gain_fn = baseline_gain_fn, 
-    baseline_n_fn = baseline_n_fn,
     baseline_threshold_fn = baseline_threshold_fn,
+    baseline_n_fn = baseline_n_fn,
     challenger_gain = gains, 
     challenger_threshold = thresholds, 
     split_seed = split_seed,
@@ -139,17 +181,9 @@ for (split_seed in 1:n_split_seeds){
   split_seed_dfs[[split_seed]] <- results
 }
 
-
-
-
-
-
-
-
-
-
-
-
+tx <- Sys.time()
+print(format(tx, "%Y-%m-%d %H:%M:%S"))
+print("starting aggregation of results")
 
 fixed_ns_agg_results <- data.frame()
 
@@ -180,7 +214,7 @@ for (fraction in fractions) {
   fixed_ns_agg_results <- rbind(fixed_ns_agg_results, data.frame(fraction = fraction, sum_of_wins_fn = sum_of_wins_fn, sum_of_wins_ft = sum_of_wins_ft, diff_fn = sum_of_diff_fn, diff_ft = sum_of_diff_ft))
 }
 
-write.csv(fixed_ns_agg_results, file = paste0("exp_",exp,"_gains",".csv"), row.names=FALSE)
+write.csv(fixed_ns_agg_results, file = paste0("exp_",filename_id,"_gains",".csv"), row.names=FALSE)
 
 t2 <- Sys.time()
 print(format(t2, "%Y-%m-%d %H:%M:%S"))

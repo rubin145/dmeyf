@@ -3,6 +3,8 @@ rm(list=ls())
 gc()
 options(scipen=999)
 
+t1 <- Sys.time()
+print(format(t1, "%Y-%m-%d %H:%M:%S"))
 
 # Load required packages
 require("data.table")
@@ -179,3 +181,9 @@ for (fraction in fractions) {
 }
 
 write.csv(fixed_ns_agg_results, file = paste0("exp_",exp,"_gains",".csv"), row.names=FALSE)
+
+t2 <- Sys.time()
+print(format(t2, "%Y-%m-%d %H:%M:%S"))
+
+time_diff <- as.numeric(difftime(t2, t1, units="mins"))
+print(paste0("Execution time: ", round(time_diff), " minutes"))

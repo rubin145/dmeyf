@@ -6,7 +6,7 @@ options(scipen=999)
 require("data.table")
 require("xgboost")
 
-split_fraction <- '02'
+split_fraction <- '03'
 n_split_seeds <- 100
 
 

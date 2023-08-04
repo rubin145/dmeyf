@@ -10,9 +10,11 @@ print(format(t1, "%Y-%m-%d %H:%M:%S"))
 require("data.table")
 require("xgboost")
 
-exp <- '12_03' #probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
-split_fraction <- '03' #
+exp <- '13_02' # +semillerio con 50 semillas | probando muchos fraction distintos para fixed_n con el exp 2 (concatenando dataset viejo sin nada más)
+split_fraction <- '02' #
 n_split_seeds <- 100
+
+model_seeds <- c(102191,1:49)
 
 fractions <- seq(0.17,0.24, by=0.001)
 
@@ -48,6 +50,7 @@ dataset_generacion[, clase := NULL]
 split_seed_results <- list()
 
 for (split_seed in 1:n_split_seeds){
+  t01 <- Sys.time()
   gains <- c()
   thresholds <- c()
   
@@ -59,30 +62,37 @@ for (split_seed in 1:n_split_seeds){
                           label= train_data[ , clase01 ]
   )
   
-  #llamo al XGBoost,  notar lo frugal de los hiperparametros
-  set.seed( 102191  ) #mi querida random seed, para que las corridas sean reproducibles # mi propia semilla 539141
-  
   base_score <- mean(train_data[,clase01])
-  
-  modelo  <- xgb.train(data= dtrain,
-                       objective= "binary:logistic",
-                       tree_method= "hist",
-                       max_bin= 31,
-                       base_score= base_score,
-                       eta= 0.04,
-                       nrounds= 300,
-                       colsample_bytree= 0.6)
-  
-  #aplico a los datos de aplicacion, que NO TIENE CLASE
-  dtest  <- xgb.DMatrix( data= data.matrix( test_data[ , !c('numero_de_cliente','clase01'), with=FALSE]) )
-  
-  #aplico el modelo a datos nuevos
-  aplicacion_prediccion  <- predict(  modelo, dtest )
-  
-  #uno las columnas de numero_de_cliente y la probabilidad recien calculada
-  prediccion_final  <- cbind(  test_data[ ,"numero_de_cliente"], aplicacion_prediccion, test_data[ ,"clase01"] )
-  colnames( prediccion_final )  <- c( "numero_de_cliente", "prob_positivo","clase01" )
-  
+  all_probas <- c()
+  for (model_seed in model_seeds){
+    t001 <- Sys.time()
+    set.seed(model_seed)
+    print(paste0("split_seed: ",split_seed,"; model_seed: ",model_seed))
+    
+    modelo  <- xgb.train(data= dtrain,
+                         objective= "binary:logistic",
+                         tree_method= "hist",
+                         max_bin= 31,
+                         base_score= base_score,
+                         eta= 0.04,
+                         nrounds= 300,
+                         colsample_bytree= 0.6 )
+    
+    #aplico a los datos de aplicacion, que NO TIENE CLASE
+    dtest  <- xgb.DMatrix( data= data.matrix( test_data[ , !c("numero_de_cliente",'clase01'), with=FALSE]) )
+    
+    #aplico el modelo a datos nuevos
+    aplicacion_prediccion  <- predict(  modelo, dtest )
+    
+    all_probas <- cbind(all_probas,aplicacion_prediccion)
+    
+    t002 <- Sys.time()
+    time_diff_model <- as.numeric(difftime(t002, t001, units="mins"))
+    print(paste0("Execution time (single model train/pred): ", round(time_diff_model), " minutes"))
+  }
+  print('seedbed: TRAINED (^_^) ')
+  prediccion_final  <- cbind(  test_data[ ,"numero_de_cliente"], rowMeans(all_probas), test_data[ ,"clase01"] )
+  colnames( prediccion_final )  <- c( "numero_de_cliente","prob_positivo","clase01" )
   
   prediccion_final <- prediccion_final[order(prediccion_final$prob_positivo,decreasing=TRUE),]
   
@@ -93,6 +103,11 @@ for (split_seed in 1:n_split_seeds){
     gains <- append(gains, ganancia_topn(top_n_predictions[ , "clase01" ] ) )
   }
   split_seed_results[[split_seed]] <- list(gains = gains, thresholds = thresholds)
+  t02 <- Sys.time()
+  time_diff_seed <- as.numeric(difftime(t02, t01, units="mins"))
+  print(paste0("Execution time (total split_seed): ", round(time_diff_seed), " minutes"))
+  remaining_time <- time_diff_seed * (n_split_seeds-split_seed)
+  print(paste0("Remaining time (estimated): ", round(remaining_time), " minutes"))
 }
 split_seed_dfs <- list()
 
