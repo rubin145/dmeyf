@@ -5,7 +5,7 @@ gc()
 require("data.table")
 require("xgboost")
 
-fraction <- 0.###
+fraction <- 0.209
 model_seeds <- c(102191,1:49)
 nro_entrega <- 01
 
